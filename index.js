@@ -1,34 +1,40 @@
-const express = require('express')();
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
 const app = express();
-const PORT = 8080;
 
-app.use(express.json());
+app.use(cors());
+app.use(bodyParser.json());
 
-app.listen(
-    PORT,
-    () => console.log(`It's alive on http://localhost:${PORT}`)
-);
+// POST endpoint
+app.post('/bfhl', (req, res) => {
+  const { full_name_ddmmyyyy, numbers, alphabets } = req.body;
 
-app.get('/tshirt', (req, res) => {
-    res.status(200).send({
-        tshirt: '👕',
-        size: 'large'
-    })
+  // Calculate the highest alphabet
+  const highestAlphabet = alphabets.reduce((max, current) => (current > max ? current : max));
+
+  // Prepare the response JSON
+  const response = {
+    user_id: full_name_ddmmyyyy,
+    is_success: true, // You can set this based on your logic
+    numbers,
+    alphabets,
+    highest_alphabet: highestAlphabet,
+  };
+
+  res.status(200).json(response);
 });
 
-app.post('/tshirt/:id', (req, res) => {
+// GET endpoint
+app.get('/bfhl', (req, res) => {
+  // Hardcoded response for GET request
+  const operationCode = 1;
 
-    const { id } = req.params;
-    const { logo } = req.body;
+  res.status(200).json({ operation_code: operationCode });
+});
 
-    if(!logo)
-    {
-        res.status(418).send({
-            message: 'We need logo!'
-        })
-    }
-
-    res.send({
-        tshirt: `👕 with your ${logo} and ID of ${id}`,
-    });
-})
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
